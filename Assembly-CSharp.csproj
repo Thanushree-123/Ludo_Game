@@ -53,7 +53,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Node.cs" />
      <Compile Include="Assets\Scripts\OuterRoute.cs" />
+     <Compile Include="Assets\Scripts\Stone.cs" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>C:/Users/thanushree.c/Documents/GitHub/Ludo_Game/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>

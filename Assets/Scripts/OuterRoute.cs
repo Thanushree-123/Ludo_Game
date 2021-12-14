@@ -43,4 +43,10 @@ public class OuterRoute : MonoBehaviour
         }
 
     }
+
+
+    public int RequestPosition(Transform nodeTransfrom)
+    {
+        return childNodesList.IndexOf(nodeTransfrom);
+    }
 }
