@@ -34,10 +34,20 @@ public class GameManager : MonoBehaviour
 
     public int activePlayer;
     bool switchingPlayer;
+    bool turnPossible = true;
+
+    //GameObject for button
+    public GameObject rollbutton;
+    [HideInInspector]public int rollHumandice;
 
     void Awake()
     {
         instance = this;
+    }
+
+    void Start()
+    {
+        ActivateButton(false);
     }
 
     void Update()
@@ -48,8 +58,12 @@ public class GameManager : MonoBehaviour
         {
             case States.Roll_Dice:
             {
-                StartCoroutine(RollDiceDelay());
-                state = States.Waiting;
+                if(turnPossible)
+                {
+                    StartCoroutine(RollDiceDelay());
+                    state = States.Waiting;
+                }
+                
             }
             break;
             case States.Waiting:
@@ -59,8 +73,44 @@ public class GameManager : MonoBehaviour
             break;
             case States.Switch_Player:
             {
-                StartCoroutine(SwitchPlayer());
-                state = States.Waiting;
+                if(turnPossible)
+                {
+                    StartCoroutine(SwitchPlayer());
+                    state = States.Waiting;
+                }
+                
+            }
+            break;
+        }
+        }
+
+        if(playerList[activePlayer].playertype == Player.PlayerTypes.Human)
+        {
+        switch(state)
+        {
+            case States.Roll_Dice:
+            {
+                if(turnPossible)
+                {
+                    ActivateButton(true);
+                    state = States.Waiting;
+                }
+                
+            }
+            break;
+            case States.Waiting:
+            {
+
+            }
+            break;
+            case States.Switch_Player:
+            {
+                if(turnPossible)
+                {
+                    StartCoroutine(SwitchPlayer());
+                    state = States.Waiting;
+                }
+                
             }
             break;
         }
@@ -205,5 +255,120 @@ public class GameManager : MonoBehaviour
 
         state = States.Roll_Dice;
 
+    }
+
+    public void ReportTurnPossible(bool possible)
+    {
+        turnPossible = possible;
+    }
+
+    public void ReportWinning()
+    {
+        playerList[activePlayer].hasWon = true;
+    }
+
+    //-------------HUMAN INPUT------------------
+    void ActivateButton(bool on)
+    {
+        rollbutton.SetActive(on);
+    }
+
+    public void DeactivateAllselector()
+    {
+        for(int i=0; i< playerList.Count; i++)
+        {
+            for(int j=0; j< playerList[i].myStones.Length; j++)
+            {
+                playerList[i].myStones[j].SetSelector(false);
+            }
+        }
+    }
+
+    public void HumanRollDice()
+    {
+        ActivateButton(false);
+        //roll dice
+        rollHumandice = Random.Range(1,7);
+        //rollHumandice = 6;
+        List <Stone> movablestones = new List<Stone>();
+        
+        //check anyone in the start node
+        bool startnodefull = false;
+        for(int i=0; i< playerList[activePlayer].myStones.Length; i++)
+        {
+            if(playerList[activePlayer].myStones[i].currentNode == playerList[activePlayer].myStones[i].startNode)
+            {
+                startnodefull = true;
+                break;
+            }
+        }
+
+        //number<6
+        if(rollHumandice < 6)
+        {
+        
+            movablestones.AddRange(Possiblestone());
+
+        }
+       
+
+        //dicenumber ==6 && no one at the startnode
+        if(rollHumandice == 6 && !startnodefull)
+        {
+            //inside base check
+            for(int i=0; i< playerList[activePlayer].myStones.Length; i++)
+            {
+                if(!playerList[activePlayer].myStones[i].ReturnIsout())
+                {
+                    movablestones.Add(playerList[activePlayer].myStones[i]);
+                }
+            }
+
+            //outside check
+            movablestones.AddRange(Possiblestone());
+        }
+        //dicenumber == 6 and startnode
+        else if(rollHumandice == 6 && startnodefull)
+        {
+            movablestones.AddRange(Possiblestone());
+        }
+
+        //Activate all possible selectors
+        if(movablestones.Count > 0)
+        {
+            for(int i=0; i< movablestones.Count; i++)
+            {
+                movablestones[i].SetSelector(true);
+            }
+        }
+        else{
+            state = States.Switch_Player;
+        }
+
+    }
+
+    List <Stone> Possiblestone()
+    {
+        List<Stone> templist = new List<Stone>();
+
+        for(int i=0; i< playerList[activePlayer].myStones.Length; i++)
+        {
+            if(playerList[activePlayer].myStones[i].ReturnIsout())
+            {
+                if(playerList[activePlayer].myStones[i].CheckPossibleKick(playerList[activePlayer].myStones[i].stoneid,rollHumandice))
+                {
+                    templist.Add(playerList[activePlayer].myStones[i]);
+                    continue;
+                }
+                if(playerList[activePlayer].myStones[i].CheckPossibleMove(rollHumandice))
+                {
+                   templist.Add(playerList[activePlayer].myStones[i]);
+                    
+                }
+
+            }
+        }
+
+        return templist;
     }
 }
