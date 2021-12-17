@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -45,6 +46,18 @@ public class GameManager : MonoBehaviour
     void Awake()
     {
         instance = this;
+        for(int i = 0; i< playerList.Count; i++)
+        {
+            if(Savesettings.players[i] == "HUMAN")
+            {
+                playerList[i].playertype = Player.PlayerTypes.Human;
+            }
+            if(Savesettings.players[i] == "CPU")
+            {
+                playerList[i].playertype = Player.PlayerTypes.CPU;
+            }
+            
+        }
     }
 
     void Start()
@@ -270,6 +283,7 @@ public class GameManager : MonoBehaviour
         else if(available<2)
         {
             //game over screen
+            SceneManager.LoadScene("GameOver");
             state = States.Waiting;
             return;
         }
@@ -286,6 +300,15 @@ public class GameManager : MonoBehaviour
     public void ReportWinning()
     {
         playerList[activePlayer].hasWon = true;
+
+        for(int i=0; i<Savesettings.winners.Length; i++)
+        {
+            if(Savesettings.winners[i] == "")
+            {
+            Savesettings.winners[i] = playerList[activePlayer].playerName;
+            break;
+            }
+        }
     }
 
     //-------------HUMAN INPUT------------------
