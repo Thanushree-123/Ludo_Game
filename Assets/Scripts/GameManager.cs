@@ -50,6 +50,10 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         ActivateButton(false);
+
+        int randomPlayer = Random.Range(0, playerList.Count);
+        activePlayer = randomPlayer;
+        Instruction.instance.showMessage(playerList[activePlayer].playerName + " starts first!");
     }
 
     void Update()
@@ -149,6 +153,7 @@ public class GameManager : MonoBehaviour
         }
         
         Debug.Log("dice rolled number" + dicenumber);
+        Instruction.instance.showMessage(playerList[activePlayer].playerName + " has rolled " + _diceNumber);
     }
 
     IEnumerator RollDiceDelay()
@@ -268,7 +273,7 @@ public class GameManager : MonoBehaviour
             state = States.Waiting;
             return;
         }
-
+        Instruction.instance.showMessage(playerList[activePlayer].playerName + " turn!");
         state = States.Roll_Dice;
 
     }
