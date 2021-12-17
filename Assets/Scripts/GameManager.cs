@@ -40,6 +40,8 @@ public class GameManager : MonoBehaviour
     public GameObject rollbutton;
     [HideInInspector]public int rollHumandice;
 
+    public Dice dice;
+
     void Awake()
     {
         instance = this;
@@ -117,29 +119,43 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void RollDice()
+    void CPUDice()
     {
-        int dicenumber = Random.Range(1,7);
-        //int dicenumber = 6;
+        dice.RollDice();
+    }
 
-        if(dicenumber == 6)
+  public void RollDice(int _diceNumber)
+    {
+        int dicenumber = _diceNumber;
+        //int dicenumber = 6;
+        if(playerList[activePlayer].playertype == Player.PlayerTypes.CPU)
         {
+            if(dicenumber == 6)
+            {
             //check the start node
             CheckStartNode(dicenumber);
-        }
+            }
 
-        if(dicenumber < 6)
-        {
+            if(dicenumber < 6)
+            {
             //check for kick
             MoveaStone(dicenumber);
+            }
         }
+        if(playerList[activePlayer].playertype == Player.PlayerTypes.Human)
+        {
+            rollHumandice = _diceNumber;
+            HumanRollDice();
+        }
+        
         Debug.Log("dice rolled number" + dicenumber);
     }
 
     IEnumerator RollDiceDelay()
     {
-        yield return new WaitForSeconds(2);
-        RollDice();
+        yield return new WaitForSeconds(1);
+        //RollDice();
+        CPUDice();
     }
 
     void CheckStartNode(int dicenumber)
@@ -284,11 +300,18 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    //This sits on the roll dice button
+    public void Humanroll()
+    {
+        dice.RollDice();
+        ActivateButton(false);
+    }
+
     public void HumanRollDice()
     {
-        ActivateButton(false);
+        
         //roll dice
-        rollHumandice = Random.Range(1,7);
+        //rollHumandice = Random.Range(1,7);
         //rollHumandice = 6;
         List <Stone> movablestones = new List<Stone>();
         
